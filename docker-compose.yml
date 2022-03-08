@@ -1,0 +1,9 @@
+version: '3.9'
+services:
+  redasql:
+    build: .
+    # entrypoint: ["/bin/sh", "-c"]
+    environment:
+      - REDASQL_REDASH_APIKEY="${REDASH_APIKEY}"
+      - REDASQL_REDASH_ENDPOINT="${REDASH_ENDPOINT}"
+      - REDASQL_HTTP_PROXY="${HTTP_PROXY}"
