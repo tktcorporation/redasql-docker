@@ -4,6 +4,8 @@ RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -y build-essential
 
 RUN pip install --upgrade pip
-RUN pip install redasql
+
+ARG REDASQL_VERSION
+RUN pip install redasql==$REDASQL_VERSION
 
 ENTRYPOINT ["/bin/bash", "-c", "redasql"]
