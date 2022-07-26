@@ -30,10 +30,6 @@ jobs:
     if: ${{ needs.check-release.outputs.target-release != needs.check-release.outputs.self-release }}
     steps:
       - uses: actions/checkout@v3
-      - name: echo releases
-        run: |
-          echo target-release:${{ needs.check-release.outputs.target-release }}
-          echo self-release:${{ needs.check-release.outputs.self-release }}
 
       - name: Prepare
         id: prep
@@ -53,6 +49,12 @@ jobs:
 
           # Set output parameters.
           echo ::set-output name=tags::${TAGS}
+      
+      - name: echo releases
+        run: |
+          echo target-release:${{ needs.check-release.outputs.target-release }}
+          echo self-release:${{ needs.check-release.outputs.self-release }}
+          echo build-args: REDASQL_VERSION=${{ needs.check-release.outputs.target-release }}
     
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -72,7 +74,8 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64,linux/ppc64le
           tags: ${{ steps.prep.outputs.tags }}
-          build_args: REDASQL_VERSION=${{ needs.check-release.outputs.target-release }}
+          build-args: |
+            REDASQL_VERSION=${{ needs.check-release.outputs.target-release }}
 
   create-tag-and-release:
     runs-on: ubuntu-latest
