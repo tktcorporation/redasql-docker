@@ -1,9 +1,12 @@
 version: '3.9'
 services:
   redasql:
-    build: .
-    # entrypoint: ["/bin/sh", "-c"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REDASQL_VERSION=v2.5.0
     environment:
-      - REDASQL_REDASH_APIKEY="${REDASH_APIKEY}"
-      - REDASQL_REDASH_ENDPOINT="${REDASH_ENDPOINT}"
-      - REDASQL_HTTP_PROXY="${HTTP_PROXY}"
+      - REDASQL_REDASH_APIKEY=${REDASH_APIKEY:-dummy}
+      - REDASQL_REDASH_ENDPOINT=${REDASH_ENDPOINT:-http://example.com}
+      - REDASQL_HTTP_PROXY=${HTTP_PROXY}
