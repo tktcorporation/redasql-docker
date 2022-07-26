@@ -34,6 +34,26 @@ jobs:
         run: |
           echo target-release:${{ needs.check-release.outputs.target-release }}
           echo self-release:${{ needs.check-release.outputs.self-release }}
+
+      - name: Prepare
+        id: prep
+        run: |
+          DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/${GITHUB_REPOSITORY#*/}
+          VERSION=${{ needs.check-release.outputs.target-release }}
+          SHORTREF=${GITHUB_SHA::8}
+
+          TAGS="${DOCKER_IMAGE}:${VERSION},${DOCKER_IMAGE}:${SHORTREF}"
+
+          # If the VERSION looks like a version number, assume that
+          # this is the most recent version of the image and also
+          # tag it 'latest'.
+          if [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            TAGS="$TAGS,${DOCKER_IMAGE}:latest"
+          fi
+
+          # Set output parameters.
+          echo ::set-output name=tags::${TAGS}
+    
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -51,9 +71,7 @@ jobs:
         with:
           push: true
           platforms: linux/amd64,linux/arm64,linux/ppc64le
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/redasql:latest,
-            ${{ secrets.DOCKER_USERNAME }}/redasql:${{ needs.check-release.outputs.target-release }}
+          tags: ${{ steps.prep.outputs.tags }}
           build_args: REDASQL_VERSION=${{ needs.check-release.outputs.target-release }}
 
   create-tag-and-release:
